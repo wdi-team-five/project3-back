@@ -14,8 +14,7 @@ module.exports = function(sequelize, DataTypes){
     },
     localPass: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unqie: false
+      allowNull: false
     }
   },
   {
