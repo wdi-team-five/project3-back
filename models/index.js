@@ -17,7 +17,7 @@ var sequelize = new Sequelize(
 
 var models = {
   'sequelize': sequelize,
-  User: sequelize.import('./user')
+  User: sequelize.import('./user.js')
 };
 
 module.exports = models;

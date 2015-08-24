@@ -5,14 +5,15 @@ var router = express.Router();
 var passport = require('passport');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
-//async
+var async = require('async');
+
+var models = require('../models'),
+    User = models.User;
 
 router.get('/', function(req,res){
   console.log("Hello world.");
   res.send("Welcome to Cara's app.");
 });
-
-
 
 router.route('/login')
   .get(function(req,res,next){
@@ -29,6 +30,7 @@ router.route('/signup')
   })
   .post(function(req,res,next){
     if(!req.body || !req.body.username || !req.body.password){
+      var err = new Error("No username and/or password provided.");
       return next(err);
     }
     async.waterfall([
