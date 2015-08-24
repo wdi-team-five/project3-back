@@ -7,13 +7,18 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var async = require('async');
 
-var models = require('../models'),
+var models = require('../models/index'),
     User = models.User;
 
-router.get('/', function(req,res){
-  res.render('index', {
+router.get('/', function(req,res,next){
+  res.json('index', {
     title: (req.user && req.user.localName) || "Nobody"
   });
+  // console.log("Max is a poo.");
+  // res.json({
+  //   username: req.user || 'nothing',
+  //   password: "something"
+  // });
 });
 
 router.route('/login')
