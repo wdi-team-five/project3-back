@@ -12,7 +12,7 @@ var models = require('../models'),
 
 router.get('/', function(req,res){
   console.log("Hello world.");
-  res.send("Welcome to Cara's app.");
+  res.send("User " + req.body.username + " is now logged in.");
 });
 
 router.route('/login')
