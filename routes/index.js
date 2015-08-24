@@ -29,6 +29,8 @@ router.route('/signup')
     res.sendStatus(405);
   })
   .post(function(req,res,next){
+    console.log("req. body is ", req.body);
+    console.log("req is ", req);
     if(!req.body || !req.body.username || !req.body.password){
       var err = new Error("No username and/or password provided.");
       return next(err);
@@ -48,7 +50,7 @@ router.route('/signup')
           cb(null,user);
         }).catch(cb);
       }
-      ], function(err,res){
+      ], function(err,result){
         if(err){
           return next(err);
         }
