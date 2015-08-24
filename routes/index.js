@@ -24,13 +24,11 @@ router.route('/login')
     failureRedirect: '/login'
   }));
 
-router.route('/signup')
+router.route('/register')
   .get(function(req,res,next){
     res.sendStatus(405);
   })
   .post(function(req,res,next){
-    console.log("req. body is ", req.body);
-    console.log("req is ", req);
     if(!req.body || !req.body.username || !req.body.password){
       var err = new Error("No username and/or password provided.");
       return next(err);
@@ -40,7 +38,7 @@ router.route('/signup')
         bcrypt.genSalt(16,cb);
       },
       function(salt,cb){
-        bcrypt.hash(req.body.username, salt, cb);
+        bcrypt.hash(req.body.password, salt, cb);
       },
       function(hash,cb){
         User.create({
