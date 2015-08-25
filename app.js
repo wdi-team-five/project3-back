@@ -53,8 +53,8 @@ app.use(bodyParser.urlencoded({ extender: false }));
 //   next();
 // });
 
-// app.use(passport.session());
 
+//positioning of routes before/after app.use(passport) shit will decide whether or not authentication is required for said routes.
 app.use('/', require('./routes/index.js'));
 
 
