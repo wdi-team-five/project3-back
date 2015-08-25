@@ -7,12 +7,15 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var uuid = require('uuid');
 var MongoStore = require('connect-mongo')(session);
+var cors = require('cors');
 
 process.env.SESSION_SECRET || require('dotenv').load();
 
 var passport = require('./lib/passport.js');
 var routes = require('./routes/index.js');
 var users = require('./routes/users.js');
+
+app.use(cors());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,

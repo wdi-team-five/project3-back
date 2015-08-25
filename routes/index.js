@@ -35,8 +35,8 @@ router.route('/register')
     res.sendStatus(405);
   })
   .post(function(req,res,next){
-    if(!req.body || !req.body.email || !req.body.password){
-      var err = new Error("No email and/or password provided.");
+    if(!req.body || !req.body.username || !req.body.password){
+      var err = new Error("No username and/or password provided.");
       return next(err);
     }
     async.waterfall([
@@ -48,7 +48,7 @@ router.route('/register')
       },
       function(hash,cb){
         User.create({
-          localName: req.body.email,
+          localName: req.body.username,
           localPass: hash
         }).then(function(user){
           cb(null,user);
