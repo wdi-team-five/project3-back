@@ -14,21 +14,17 @@ router.get('/', function(req,res,next){
   res.json('index', {
     title: (req.user && req.user.localName) || "Nobody"
   });
-  // console.log("Max is a poo.");
-  // res.json({
-  //   username: req.user || 'nothing',
-  //   password: "something"
-  // });
 });
 
 router.route('/login')
   .get(function(req,res,next){
     res.sendStatus(405);
   })
-  .post(passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login'
-  }));
+  .post(
+   passport.authenticate('local'), function(req, res){
+     console.log("back end index line 31");
+     res.json(req.user);
+   });
 
 router.route('/register')
   .get(function(req,res,next){
