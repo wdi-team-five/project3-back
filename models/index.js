@@ -18,16 +18,14 @@ var sequelize = new Sequelize(
 var models = {
   'sequelize': sequelize,
   User: sequelize.import('./user.js'),
-  Profile: sequelize.import('./profile.js')
+  Profile: sequelize.import('./profile.js'),
+  Element: sequelize.import('./element.js'),
 };
 
 models.Profile.belongsTo(models.User);
-models.User.hasOne(models. Profile);
+models.User.hasOne(models.Profile);
 
-// models.Tag.belongsTo(models.Profile);
-// models.Profile.hasOne(models.Tag);
-
-// models.Tag.belongsTo(models.Document);
-// models.Document.hasOne(models.Tag);
+models.Element.belongsTo(models.User);
+models.User.hasMany(models.Element);
 
 module.exports = models;

@@ -9,7 +9,8 @@ var async = require('async');
 
 var models = require('../models/index'),
     User = models.User,
-    Profile = models.Profile;
+    Profile = models.Profile,
+    MongoFile = models.MongoFile;
 
 // router.get('/', function(req,res,next){
 //   res.json('index', {
@@ -157,6 +158,22 @@ router.route('/updateProfile')
           next(err);
         });
     });
+    //req.user.create Route folder~!
   });
+
+router.route('/createFile')
+  .post()
+
+//MongoFile.create({
+//   path: "/blah/blah",
+//   ownerId: '1234',
+//   sourceURL: "usr1/imgs/me.png",
+//   folder: false
+// }, function(err, mongoFile){
+//   if(err){
+//     console.error(err);
+//     //return;
+//   }
+// });
 
 module.exports = router;
