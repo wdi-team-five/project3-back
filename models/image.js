@@ -1,9 +1,9 @@
-'use strict'
+'use strict';
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/file-upload');
 
-var fileSchema = new mongoose.Schema({
+var imageSchema = new mongoose.Schema({
   url: {
     type: String,
     required: true
@@ -12,12 +12,12 @@ var fileSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  title: {
+  caption: {
     type: String,
     required: true
   }
 });
 
-var File = mongoose.model('File', fileSchema);
+var Image = mongoose.model('Image', imageSchema);
 
-module.exports = File;
+module.exports = Image;

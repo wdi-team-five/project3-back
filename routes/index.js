@@ -22,7 +22,6 @@ router.route('/login')
   })
   .post(
    passport.authenticate('local'), function(req, res){
-     console.log("back end index line 31");
      res.json(req.user);
    });
 
