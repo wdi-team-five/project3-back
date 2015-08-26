@@ -161,8 +161,12 @@ router.route('/updateProfile')
     //req.user.create Route folder~!
   });
 
+router.route('/createFolder')
+  .post();
+
 router.route('/createFile')
-  .post()
+  .post();
+
 
 //MongoFile.create({
 //   path: "/blah/blah",
