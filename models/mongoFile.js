@@ -21,7 +21,7 @@ var mongoFileSchema = new Schema({
     // },
     sourceURL: {
       type: String,
-      required: true
+      required: false
     },
     directory: {
       type: Boolean,

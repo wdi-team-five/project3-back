@@ -167,12 +167,11 @@ router.route('/updateProfile')
 
 router.route('/createFolder')
   .post(function(req, res, next){
-    console.log(MongoFile);
     MongoFile.create({
       elementName: req.body.elementName,
       path: req.body.path,
-      sourceURL: req.body.sourceURL,
-      directory: req.body.directory,
+      sourceURL: null,
+      directory: true,
       // need to split on commas and push to array of tags
       tagsArray: req.body.tagsArray,
       description: req.body.description
@@ -186,7 +185,25 @@ router.route('/createFolder')
   });
 
 router.route('/createFile')
-  .post();
+  .post(function(req, res, next){
+    // file upload through AWS
+
+    MongoFile.create({
+      elementName: req.body.elementName,
+      path: req.body.path,
+      sourceURL: req.body.sourceURL,
+      directory: false,
+      // need to split on commas and push to array of tags
+      tagsArray: req.body.tagsArray,
+      description: req.body.description
+    }, function(err, result){
+      if (err) {
+        console.error(err);
+        return next(err);
+      }
+      res.sendStatus(200);
+    });
+  });
 
 
 //MongoFile.create({
