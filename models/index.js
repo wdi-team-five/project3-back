@@ -19,7 +19,7 @@ var models = {
   'sequelize': sequelize,
   User: sequelize.import('./user.js'),
   Profile: sequelize.import('./profile.js'),
-  Element: sequelize.import('./element.js'),
+  Element: sequelize.import('./element.js')
 };
 
 models.Profile.belongsTo(models.User);

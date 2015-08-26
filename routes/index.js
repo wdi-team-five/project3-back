@@ -7,10 +7,14 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var async = require('async');
 
+var mongoose = require('mongoose');
+var MongoFile = require('../models/MongoFile');
+
+// var MongoFile = mongoose.MongoFile;
+
 var models = require('../models/index'),
     User = models.User,
-    Profile = models.Profile,
-    MongoFile = models.MongoFile;
+    Profile = models.Profile;
 
 // router.get('/', function(req,res,next){
 //   res.json('index', {
@@ -70,9 +74,9 @@ router.route('/register')
       },
       function(user,cb){
         Profile.create({
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          companyName: req.body.company,
+          firstName: req.body.firstName || "",
+          lastName: req.body.lastName || "",
+          companyName: req.body.company || "",
           UserId: user.id
         }).then(function(profile){
           cb(null,profile);
@@ -162,7 +166,24 @@ router.route('/updateProfile')
   });
 
 router.route('/createFolder')
-  .post();
+  .post(function(req, res, next){
+    console.log(MongoFile);
+    MongoFile.create({
+      elementName: req.body.elementName,
+      path: req.body.path,
+      sourceURL: req.body.sourceURL,
+      directory: req.body.directory,
+      // need to split on commas and push to array of tags
+      tagsArray: req.body.tagsArray,
+      description: req.body.description
+    }, function(err, result){
+      if (err) {
+        console.error(err);
+        return next(err);
+      }
+      res.sendStatus(200);
+    });
+  });
 
 router.route('/createFile')
   .post();

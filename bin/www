@@ -9,7 +9,9 @@ var closeMongoose = require('../lib/mongooseConnection.js');
 var server = http.createServer(app);
 var port = 8000;
 
-models.sequelize.sync().then(function(){
+models.sequelize.sync(
+  // { force: true }
+).then(function(){
   server.listen(port, function(){
     console.log("Server is running on a port called", port);
   });
