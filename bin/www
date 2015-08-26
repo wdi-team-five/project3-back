@@ -1,8 +1,10 @@
 var http = require('http');
 var app = require('../app.js');
 var debug = require('debug')('project3-back:server');
+var async = require('async');
 
 var models = require('../models');
+var closeMongoose = require('../lib/mongooseConnection.js');
 
 var server = http.createServer(app);
 var port = 8000;
@@ -15,6 +17,8 @@ models.sequelize.sync().then(function(){
 
 server.on('error', onError);
 server.on('listening', onListening);
+
+process.on('SIGTERM', onTerminate);
 
 function onError(error) {
   if (error.syscall !== 'listen') {
@@ -46,4 +50,20 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+}
+
+function onTerminate() {
+  async.parallel([
+    function(cb) {
+      closeMongoose(cb);
+    },
+    function(cb) {
+      models.sequelize.close(cb);
+    }
+  ], function(err, result) {
+    if(err) {
+      process.exit(1);
+    }
+    process.exit(0);
+  });
 }

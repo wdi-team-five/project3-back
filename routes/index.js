@@ -8,13 +8,15 @@ var bcrypt = require('bcrypt');
 var async = require('async');
 
 var models = require('../models/index'),
-    User = models.User;
+    User = models.User,
+    Profile = models.Profile,
+    MongoFile = models.MongoFile;
 
-router.get('/', function(req,res,next){
-  res.json('index', {
-    title: (req.user && req.user.localName) || "Nobody"
-  });
-});
+// router.get('/', function(req,res,next){
+//   res.json('index', {
+//     title: (req.user && req.user.localName) || "Nobody"
+//   });
+// });
 
 router.route('/login')
   .get(function(req,res,next){
@@ -22,9 +24,17 @@ router.route('/login')
   })
   .post(
    passport.authenticate('local'), function(req, res){
-     console.log("back end index line 31");
      res.json(req.user);
    });
+
+router.route('/profile')
+  .get(function(req,res, next){
+    req.user.getProfile().then(function(profile){
+      res.json(profile);
+    }, function(err){
+      next(err);
+    });
+  });
 
 router.route('/register')
   .get(function(req,res,next){
@@ -38,6 +48,10 @@ router.route('/register')
     async.waterfall([
       function(cb){
         bcrypt.genSalt(16,cb);
+        //kind of like this:
+        //.then(function(salt){
+        //   cb(null,salt)
+        // })
       },
       function(salt,cb){
         bcrypt.hash(req.body.password, salt, cb);
@@ -48,6 +62,20 @@ router.route('/register')
           localPass: hash
         }).then(function(user){
           cb(null,user);
+        })
+        //this is what is going on with .catch(cb);
+        .catch(function(err){
+          cb(err);
+        });
+      },
+      function(user,cb){
+        Profile.create({
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          companyName: req.body.company,
+          UserId: user.id
+        }).then(function(profile){
+          cb(null,profile);
         }).catch(cb);
       }
       ], function(err,result){
@@ -98,5 +126,58 @@ router.route('/changePassword')
     //update user's db row with new pass
     //send a server response 202/200
   });
+
+router.route('/updateProfile')
+  .get(function(req,res,next){
+    res.sendStatus(405);
+  })
+  .put(function(req,res,next){
+    //check if user is logged in ( if(req.user) ) && user.body has a 'password' in it -- OR 403
+    if(!req.user){
+      var err = new Error("User not logged in.");
+      return next(err);
+    }
+    if(!req.body || !req.body.password){
+      var err = new Error("You have no credentials.");
+      return next(err);
+    }
+    //check if body contains a password value OR 404
+    //bcrpyt
+    req.user.getProfile().then(
+      function(profile){
+        profile.update({
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          companyName: req.body.company
+      }).then(
+        function(profile){
+        //probably returning updated profile? maybe change this to return updated profile in json for handlebars
+          res.sendStatus(200);
+        },
+        function(err){
+          next(err);
+        });
+    });
+    //req.user.create Route folder~!
+  });
+
+router.route('/createFolder')
+  .post();
+
+router.route('/createFile')
+  .post();
+
+
+//MongoFile.create({
+//   path: "/blah/blah",
+//   ownerId: '1234',
+//   sourceURL: "usr1/imgs/me.png",
+//   folder: false
+// }, function(err, mongoFile){
+//   if(err){
+//     console.error(err);
+//     //return;
+//   }
+// });
 
 module.exports = router;

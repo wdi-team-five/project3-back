@@ -1,13 +1,17 @@
 'use strict'
 
 module.exports = function(sequelize, DataTypes){
-  var Tag = sequelize.define('Tag', {
+  var Element = sequelize.define('Element', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    name: {
+    userID: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    mongoId: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -21,5 +25,5 @@ module.exports = function(sequelize, DataTypes){
       //fine... boring comment.
     }
   });
-  return Tag;
+  return Element;
 };
