@@ -66,9 +66,9 @@ var indexOfElements = function(req, res, next){
       if(err){
         return next(err);
       }
-      console.log(mongoElements);
-      // res.json(mongoElements);
-      return mongoElements;
+      //console.log(mongoElements);
+      res.json(mongoElements);
+      // return mongoElements;
     });
 };
 
@@ -82,7 +82,7 @@ router.route('/images')
     }
     //res.json({body: req.body, file: req.file.buffer});
     console.log("testing testing");
-    // res.json();
+    res.json(data);
   }, req.user.id);
 });
 
@@ -96,13 +96,16 @@ router.route('/login')
    });
 
 router.route('/profile')
-  .get(function(req,res, next){
+  .get(function(req,res,next){
     req.user.getProfile().then(function(profile){
       res.json(profile);
     }, function(err){
       next(err);
     });
   });
+
+router.route('/files')
+  .get(indexOfElements);
 
 router.route('/register')
   .get(function(req,res,next){
