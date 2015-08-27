@@ -6,6 +6,7 @@ var passport = require('passport');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var async = require('async');
+var forEach = require('async-foreach').forEach;
 
 var mongoose = require('mongoose');
 var MongoFile = require('../models/MongoFile');
@@ -24,25 +25,45 @@ var models = require('../models/index'),
 // });
 
 // search function that returns index of mongoDB documents by default, limited by a tag if provided
-var indexOfElements = function(req){
+var indexOfElements = function(){
   var mongoElements = [];
-  var sqlElements = Element.findAll({
-    where: {
-      userID: req.user.id
-    }
-  });
-  console.log(sqlElements);
-  sqlElements.forEach(function(element){
-    mongoElements.push(
-      MongoFile.findById(element.mongoId, function(err){
-        if (err) {
-          console.error(err);
-          return next(err);
+
+
+
+  async.waterfall([
+    function(cb){
+      Element.findAll({
+        where: {
+          userID: req.user.id
         }
+      })
+    },
+    function(usersElements, cb){
+      forEach(usersElements, function(item, index, arr) {
+        mongoElements.push(
+          MongoFile.findById(element.mongoId, function(err){
+            if (err) {
+              console.error(err);
+              return next(err);
+            }
+          }
+        ));
+      });
+    }
+    ], function(err,result){
+      if(err){
+        return next(err);
       }
-    ));
-  });
-  return mongoElements;
+      console.log(result);
+      res.sendStatus(201);
+    });
+
+  //
+  // var mongoElements = [];
+  // var sqlElements =
+  // console.log(sqlElements);
+  // ;
+  // return mongoElements;
 };
 
 
@@ -257,24 +278,8 @@ router.route('/deleteFile')
 
 router.route('/elements')
   .get(function(req, res, next){
-    var mongoElements = [];
-    var sqlElements = Element.findAll({
-      where: {
-        userID: req.user.id
-      }
-    });
-    console.log(sqlElements);
-    sqlElements.forEach(function(element){
-      mongoElements.push(
-        MongoFile.findById(element.mongoId, function(err){
-          if (err) {
-            console.error(err);
-            return next(err);
-          }
-        }
-      ));
-    });
-    res.json(mongoElements);
+
+    // create JSON for response
   }, function(err){
     if (err) {
       console.error(err);
