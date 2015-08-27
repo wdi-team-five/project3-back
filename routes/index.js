@@ -1,5 +1,6 @@
 'use strict'
 
+var util = require('util');
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
@@ -7,6 +8,11 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var async = require('async');
 var forEach = require('async-foreach').forEach;
+var awsUpload = require('../lib/aws-upload.js');
+
+var multer = require('multer');
+var storage = multer.memoryStorage();
+var upload = multer({ storage: storage });
 
 var mongoose = require('mongoose');
 var MongoFile = require('../models/MongoFile');
@@ -32,7 +38,7 @@ var indexOfElements = function(req, res, next){
     function(cb){
       Element.findAll({
         where: {
-          userID: req.user.id
+          UserId: req.user.id
         }
       }).then(function(elements){
         cb(null, elements);
@@ -60,11 +66,25 @@ var indexOfElements = function(req, res, next){
       if(err){
         return next(err);
       }
-      console.log(mongoElements);
+      //console.log(mongoElements);
       res.json(mongoElements);
+      // return mongoElements;
     });
 };
 
+router.route('/images')
+  .post(upload.single('file'), function(req, res, next) {
+  awsUpload(req.file.buffer, req.body.caption, function(err, data) {
+    if (err) {
+      next(err);
+      console.log("testing error");
+      return;
+    }
+    //res.json({body: req.body, file: req.file.buffer});
+    console.log("testing testing");
+    res.json(data);
+  }, req.user.id);
+});
 
 router.route('/login')
   .get(function(req,res,next){
@@ -76,13 +96,16 @@ router.route('/login')
    });
 
 router.route('/profile')
-  .get(function(req,res, next){
+  .get(function(req,res,next){
     req.user.getProfile().then(function(profile){
       res.json(profile);
     }, function(err){
       next(err);
     });
   });
+
+router.route('/files')
+  .get(indexOfElements);
 
 router.route('/register')
   .get(function(req,res,next){
@@ -226,7 +249,7 @@ router.route('/createFolder')
       }
       res.sendStatus(200);
       Element.create({
-        userID: req.user.id,
+        UserId: req.user.id,
         mongoId: result['_id'].toString()
       });
     });
@@ -234,8 +257,8 @@ router.route('/createFolder')
 
 router.route('/createFile')
   .post(function(req, res, next){
+    // awsUpload(req.)
     // file upload through AWS
-
     MongoFile.create({
       elementName: req.body.elementName,
       path: req.body.path,
@@ -252,7 +275,7 @@ router.route('/createFile')
       res.sendStatus(200);
       // console.log(result['_id'].toString());
       Element.create({
-        userID: req.user.id,
+        UserId: req.user.id,
         mongoId: result['_id'].toString()
       });
     });

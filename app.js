@@ -15,7 +15,11 @@ var passport = require('./lib/passport.js');
 var routes = require('./routes/index.js');
 var users = require('./routes/users.js');
 
-app.use(cors());
+app.use(cors({
+ credentials: true,
+ origin: 'http://localhost:5000'
+ // allowedHeaders: ['Cookie', 'Content-Type']
+}));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
