@@ -25,10 +25,8 @@ var models = require('../models/index'),
 // });
 
 // search function that returns index of mongoDB documents by default, limited by a tag if provided
-var indexOfElements = function(){
+var indexOfElements = function(req, res, next){
   var mongoElements = [];
-
-
 
   async.waterfall([
     function(cb){
@@ -36,34 +34,35 @@ var indexOfElements = function(){
         where: {
           userID: req.user.id
         }
-      })
+      }).then(function(elements){
+        cb(null, elements);
+      }).catch(cb);
     },
     function(usersElements, cb){
-      forEach(usersElements, function(item, index, arr) {
-        mongoElements.push(
-          MongoFile.findById(element.mongoId, function(err){
-            if (err) {
-              console.error(err);
-              return next(err);
-            }
+      async.each(usersElements, function(element, callback){
+        MongoFile.findById(element.mongoId, function(err, mongoFile){
+          if (err) {
+            callback(err);
+          } else {
+            mongoElements.push(mongoFile);
+            callback();
           }
-        ));
-      });
+        })
+      }, function(err){
+        if (err) {
+          return cb(err);
+        } else {
+          cb();
+        }
+      })
     }
     ], function(err,result){
       if(err){
         return next(err);
       }
-      console.log(result);
-      res.sendStatus(201);
+      console.log(mongoElements);
+      res.json(mongoElements);
     });
-
-  //
-  // var mongoElements = [];
-  // var sqlElements =
-  // console.log(sqlElements);
-  // ;
-  // return mongoElements;
 };
 
 
@@ -277,15 +276,7 @@ router.route('/deleteFile')
   });
 
 router.route('/elements')
-  .get(function(req, res, next){
-
-    // create JSON for response
-  }, function(err){
-    if (err) {
-      console.error(err);
-      return next(err);
-    }
-  });
+  .get(indexOfElements);
 
 
 //MongoFile.create({
