@@ -6,6 +6,7 @@ var passport = require('passport');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var async = require('async');
+var forEach = require('async-foreach').forEach;
 
 var mongoose = require('mongoose');
 var MongoFile = require('../models/MongoFile');
@@ -14,6 +15,7 @@ var MongoFile = require('../models/MongoFile');
 
 var models = require('../models/index'),
     User = models.User,
+    Element = models.Element,
     Profile = models.Profile;
 
 // router.get('/', function(req,res,next){
@@ -21,6 +23,49 @@ var models = require('../models/index'),
 //     title: (req.user && req.user.localName) || "Nobody"
 //   });
 // });
+
+// search function that returns index of mongoDB documents by default, limited by a tag if provided
+var indexOfElements = function(){
+  var mongoElements = [];
+
+
+
+  async.waterfall([
+    function(cb){
+      Element.findAll({
+        where: {
+          userID: req.user.id
+        }
+      })
+    },
+    function(usersElements, cb){
+      forEach(usersElements, function(item, index, arr) {
+        mongoElements.push(
+          MongoFile.findById(element.mongoId, function(err){
+            if (err) {
+              console.error(err);
+              return next(err);
+            }
+          }
+        ));
+      });
+    }
+    ], function(err,result){
+      if(err){
+        return next(err);
+      }
+      console.log(result);
+      res.sendStatus(201);
+    });
+
+  //
+  // var mongoElements = [];
+  // var sqlElements =
+  // console.log(sqlElements);
+  // ;
+  // return mongoElements;
+};
+
 
 router.route('/login')
   .get(function(req,res,next){
@@ -181,6 +226,10 @@ router.route('/createFolder')
         return next(err);
       }
       res.sendStatus(200);
+      Element.create({
+        userID: req.user.id,
+        mongoId: result['_id'].toString()
+      });
     });
   });
 
@@ -202,7 +251,40 @@ router.route('/createFile')
         return next(err);
       }
       res.sendStatus(200);
+      // console.log(result['_id'].toString());
+      Element.create({
+        userID: req.user.id,
+        mongoId: result['_id'].toString()
+      });
     });
+  });
+
+router.route('/deleteFile')
+  .delete(function(req, res, next){
+    Element.destroy({
+      where: {
+        mongoId: req.body.mongoId
+      }
+    });
+    MongoFile.findOneAndRemove({ _id:req.body.mongoId }, function(err){
+      if (err) {
+        console.error(err);
+        return next(err);
+      }
+      res.sendStatus(200);
+    });
+    // MongoFile.find({ _id:req.body.mongoId }).remove().exec();
+  });
+
+router.route('/elements')
+  .get(function(req, res, next){
+
+    // create JSON for response
+  }, function(err){
+    if (err) {
+      console.error(err);
+      return next(err);
+    }
   });
 
 
