@@ -14,6 +14,7 @@ var MongoFile = require('../models/MongoFile');
 
 var models = require('../models/index'),
     User = models.User,
+    Element = models.Element,
     Profile = models.Profile;
 
 // router.get('/', function(req,res,next){
@@ -181,6 +182,10 @@ router.route('/createFolder')
         return next(err);
       }
       res.sendStatus(200);
+      Element.create({
+        userID: req.user.id,
+        mongoId: result['_id'].toString()
+      });
     });
   });
 
@@ -202,8 +207,32 @@ router.route('/createFile')
         return next(err);
       }
       res.sendStatus(200);
+      // console.log(result['_id'].toString());
+      Element.create({
+        userID: req.user.id,
+        mongoId: result['_id'].toString()
+      });
     });
   });
+
+router.route('/deleteFile')
+  .delete(function(req, res, next){
+    Element.destroy({
+      where: {
+        mongoId: req.body.mongoId
+      }
+    });
+    MongoFile.findOneAndRemove({ _id:req.body.mongoId }, function(err){
+      if (err) {
+        console.error(err);
+        return next(err);
+      }
+      res.sendStatus(200);
+    });
+    // MongoFile.find({ _id:req.body.mongoId }).remove().exec();
+  });
+
+
 
 
 //MongoFile.create({
