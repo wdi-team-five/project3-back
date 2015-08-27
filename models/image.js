@@ -1,7 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/file-upload');
+// mongoose.connect('mongodb://localhost/file-upload');
 
 var imageSchema = new mongoose.Schema({
   url: {

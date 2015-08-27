@@ -1,5 +1,6 @@
 'use strict'
 
+var util = require('util');
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
@@ -7,6 +8,11 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var async = require('async');
 var forEach = require('async-foreach').forEach;
+var awsUpload = require('../lib/aws-upload.js');
+
+var multer = require('multer');
+var storage = multer.memoryStorage();
+var upload = multer({ storage: storage });
 
 var mongoose = require('mongoose');
 var MongoFile = require('../models/MongoFile');
@@ -25,47 +31,60 @@ var models = require('../models/index'),
 // });
 
 // search function that returns index of mongoDB documents by default, limited by a tag if provided
-var indexOfElements = function(){
+var indexOfElements = function(req, res, next){
   var mongoElements = [];
-
-
 
   async.waterfall([
     function(cb){
       Element.findAll({
         where: {
-          userID: req.user.id
+          UserId: req.user.id
         }
-      })
+      }).then(function(elements){
+        cb(null, elements);
+      }).catch(cb);
     },
     function(usersElements, cb){
-      forEach(usersElements, function(item, index, arr) {
-        mongoElements.push(
-          MongoFile.findById(element.mongoId, function(err){
-            if (err) {
-              console.error(err);
-              return next(err);
-            }
+      async.each(usersElements, function(element, callback){
+        MongoFile.findById(element.mongoId, function(err, mongoFile){
+          if (err) {
+            callback(err);
+          } else {
+            mongoElements.push(mongoFile);
+            callback();
           }
-        ));
-      });
+        })
+      }, function(err){
+        if (err) {
+          return cb(err);
+        } else {
+          cb();
+        }
+      })
     }
     ], function(err,result){
       if(err){
         return next(err);
       }
-      console.log(result);
-      res.sendStatus(201);
+      console.log(mongoElements);
+      // res.json(mongoElements);
+      return mongoElements;
     });
-
-  //
-  // var mongoElements = [];
-  // var sqlElements =
-  // console.log(sqlElements);
-  // ;
-  // return mongoElements;
 };
 
+router.route('/images')
+  .post(upload.single('file'), function(req, res, next) {
+  awsUpload(req.file.buffer, req.body.caption, function(err, data) {
+    if (err) {
+      next(err);
+      console.log("testing error");
+      return;
+    }
+    //res.json({body: req.body, file: req.file.buffer});
+    console.log("testing testing");
+    // res.json();
+  }, req.user.id);
+});
 
 router.route('/login')
   .get(function(req,res,next){
@@ -227,7 +246,7 @@ router.route('/createFolder')
       }
       res.sendStatus(200);
       Element.create({
-        userID: req.user.id,
+        UserId: req.user.id,
         mongoId: result['_id'].toString()
       });
     });
@@ -235,8 +254,8 @@ router.route('/createFolder')
 
 router.route('/createFile')
   .post(function(req, res, next){
+    // awsUpload(req.)
     // file upload through AWS
-
     MongoFile.create({
       elementName: req.body.elementName,
       path: req.body.path,
@@ -253,7 +272,7 @@ router.route('/createFile')
       res.sendStatus(200);
       // console.log(result['_id'].toString());
       Element.create({
-        userID: req.user.id,
+        UserId: req.user.id,
         mongoId: result['_id'].toString()
       });
     });
