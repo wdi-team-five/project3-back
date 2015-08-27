@@ -23,6 +23,29 @@ var models = require('../models/index'),
 //   });
 // });
 
+// search function that returns index of mongoDB documents by default, limited by a tag if provided
+var indexOfElements = function(req){
+  var mongoElements = [];
+  var sqlElements = Element.findAll({
+    where: {
+      userID: req.user.id
+    }
+  });
+  console.log(sqlElements);
+  sqlElements.forEach(function(element){
+    mongoElements.push(
+      MongoFile.findById(element.mongoId, function(err){
+        if (err) {
+          console.error(err);
+          return next(err);
+        }
+      }
+    ));
+  });
+  return mongoElements;
+};
+
+
 router.route('/login')
   .get(function(req,res,next){
     res.sendStatus(405);
@@ -232,7 +255,32 @@ router.route('/deleteFile')
     // MongoFile.find({ _id:req.body.mongoId }).remove().exec();
   });
 
-
+router.route('/elements')
+  .get(function(req, res, next){
+    var mongoElements = [];
+    var sqlElements = Element.findAll({
+      where: {
+        userID: req.user.id
+      }
+    });
+    console.log(sqlElements);
+    sqlElements.forEach(function(element){
+      mongoElements.push(
+        MongoFile.findById(element.mongoId, function(err){
+          if (err) {
+            console.error(err);
+            return next(err);
+          }
+        }
+      ));
+    });
+    res.json(mongoElements);
+  }, function(err){
+    if (err) {
+      console.error(err);
+      return next(err);
+    }
+  });
 
 
 //MongoFile.create({
