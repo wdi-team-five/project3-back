@@ -334,6 +334,7 @@ router.route('/deleteFile')
   router.route('/tagged')
     .all(indexOfElements)
     .post(function(req, res, next){
+      // console.log('getFilesWithTag returns', getFilesWithTag(req.body.tag, res.locals.userFiles));
       res.json(getFilesWithTag(req.body.tag, res.locals.userFiles));
     });
 
