@@ -72,18 +72,16 @@ var indexOfElements = function(req, res, next){
     });
 };
 
-router.route('/images')
+router.route('/addFile')
   .post(upload.single('file'), function(req, res, next) {
-  awsUpload(req.file.buffer, req.body.caption, function(err, data) {
+  awsUpload(req.file.buffer, req.body.caption, req.user.id, req.body.path, req.body.tag, function(err, data) {
     if (err) {
       next(err);
-      console.log("testing error");
       return;
     }
     //res.json({body: req.body, file: req.file.buffer});
-    console.log("testing testing");
     res.json(data);
-  }, req.user.id);
+  });
 });
 
 router.route('/login')
@@ -119,10 +117,6 @@ router.route('/register')
     async.waterfall([
       function(cb){
         bcrypt.genSalt(16,cb);
-        //kind of like this:
-        //.then(function(salt){
-        //   cb(null,salt)
-        // })
       },
       function(salt,cb){
         bcrypt.hash(req.body.password, salt, cb);
