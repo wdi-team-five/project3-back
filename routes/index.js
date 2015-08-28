@@ -33,7 +33,6 @@ var models = require('../models/index'),
 // search function that returns index of mongoDB documents by default, limited by a tag if provided
 var indexOfElements = function(req, res, next){
   var mongoElements = [];
-
   async.waterfall([
     function(cb){
       Element.findAll({
@@ -53,21 +52,22 @@ var indexOfElements = function(req, res, next){
             mongoElements.push(mongoFile);
             callback();
           }
-        })
+        });
       }, function(err){
         if (err) {
           return cb(err);
-        } else {
-          cb();
         }
-      })
+        cb();
+      });
     }
     ], function(err,result){
       if(err){
         return next(err);
       }
+      res.locals.userFiles = mongoElements;
+      next();
       //console.log(mongoElements);
-      res.json(mongoElements);
+      //res.json(mongoElements);
       // return mongoElements;
     });
 };
@@ -298,9 +298,44 @@ router.route('/deleteFile')
     // MongoFile.find({ _id:req.body.mongoId }).remove().exec();
   });
 
-router.route('/elements')
-  .get(indexOfElements);
+  router.route('/files')
+   .all(indexOfElements)
+   .get(function(req, res) {
+     res.json(res.locals.userFiles);
+   });
 
+
+  var getFilesWithTag = function(tag, userFiles){
+    var filesWithTag = [];
+    userFiles.forEach(function(file){
+      for (var i = 0; i < file.tagsArray.length; i++) {
+        if (file.tagsArray[i] === tag) {
+          filesWithTag.push(file);
+        }
+      }
+    });
+    return filesWithTag;
+  };
+  var getAllTags = function(userFiles){
+    var tagList = [];
+    userFiles.forEach(function(file){
+      tagList.push(file.tagsArray.toString());
+    });
+    tagList = tagList.filter(function (e, i, tagList) {
+      return tagList.lastIndexOf(e) === i;
+    });
+    return tagList;
+  };
+  router.route('/tags')
+    .all(indexOfElements)
+    .get(function(req, res, next){
+      res.json(getAllTags(res.locals.userFiles));
+    });
+  router.route('/tagged')
+    .all(indexOfElements)
+    .post(function(req, res, next){
+      res.json(getFilesWithTag(req.body.tag, res.locals.userFiles));
+    });
 
 //MongoFile.create({
 //   path: "/blah/blah",
