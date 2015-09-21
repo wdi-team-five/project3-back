@@ -233,7 +233,7 @@ router.route('/createFolder')
       path: req.body.path,
       sourceURL: null,
       directory: true,
-      // need to split on commas and push to array of tags
+      children: [],
       tagsArray: req.body.tagsArray,
       description: req.body.description
     }, function(err, result){
@@ -282,6 +282,9 @@ router.route('/deleteFile')
         mongoId: req.body.mongoId
       }
     });
+    // better to include the ID in the URL for the route?
+    // so instead of /deleteFile' we would have /file/id with
+    // a DELETE request
     MongoFile.findOneAndRemove({ _id:req.body.mongoId }, function(err){
       if (err) {
         console.error(err);

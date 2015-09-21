@@ -15,6 +15,10 @@ var mongoFileSchema = new Schema({
       type: String,
       required: true
     },
+    children: {
+      type: Array,
+      required: false
+    },
     // ownerId: {
     //   type: Number,
     //   required: true

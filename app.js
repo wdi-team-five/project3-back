@@ -60,5 +60,7 @@ app.use(bodyParser.urlencoded({ extender: false }));
 
 //positioning of routes before/after app.use(passport) shit will decide whether or not authentication is required for said routes.
 app.use('/', require('./routes/index.js'));
+// app.use('/files, require('./routes/files.js); -- make another route file for files involving create/update/delete and these would just go to /:id with the 'file/' being implied at the beginning.
+//app.use('/', require('./routes/users.js'));
 
 module.exports = app;
